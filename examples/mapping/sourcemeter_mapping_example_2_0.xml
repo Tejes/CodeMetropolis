@@ -19,9 +19,13 @@
 			<conversions>
 				<conversion type="quantization">
 					<parameter name="level0" value="glass"/>
+					<parameter name="threshold0" value="2"/>
 					<parameter name="level1" value="sand"/>
+					<parameter name="threshold1" value="4"/>
 					<parameter name="level2" value="planks"/>
+					<parameter name="threshold2" value="8"/>
 					<parameter name="level3" value="stone"/>
+					<parameter name="threshold3" value="16"/>
 					<parameter name="level4" value="obsidian"/>
 				</conversion>
 			</conversions>
