@@ -29,14 +29,14 @@ public class QuantizationConversion extends Conversion {
 		double dValue = toDouble(value);
 		
 		if(levelsMap.size() == thresholdMap.size() + 1) {
-			int i = 1;
+			int i = 0;
 			for(Double threshold : thresholdMap.values()) {
-				if(dValue > threshold) {
+				if(dValue <= threshold) {
 					return levels[i];
 				}
 				++i;
 			}
-			return levels[0];
+			return levels[i];
 		} else {
 			double distance = limit.getMax() - limit.getMin();
 			double step = distance / levels.length;
