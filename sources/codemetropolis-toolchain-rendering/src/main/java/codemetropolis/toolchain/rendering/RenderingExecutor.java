@@ -64,7 +64,14 @@ public class RenderingExecutor extends AbstractExecutor {
 			return false;
 		}
 		
-		WorldBuilder worldBuilder = new WorldBuilder(renderingArgs.getWorldPath());
+		WorldBuilder worldBuilder;
+		try {
+			worldBuilder = new WorldBuilder(renderingArgs.getWorldPath());
+		} catch (Exception e) {
+			printError(e, Resources.get("render_world_write_error"));
+			return false;
+		}
+
 		for(EventListener listener : listeners) {
 			worldBuilder.addEventListener((ProgressEventListener) listener);
 		}
