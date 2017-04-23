@@ -1,5 +1,6 @@
 package codemetropolis.toolchain.mapping.conversions;
 
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -10,41 +11,32 @@ public class QuantizationConversion extends Conversion {
 
 	public static final String NAME = "quantization";
 	
+	private final SortedMap<Integer, String> levelsMap = new TreeMap<>();
+	private final SortedMap<Integer, Double> thresholdMap = new TreeMap<>();
+
 	@Override
 	public Object apply(Object value, Limit limit) {
-		SortedMap<Integer, String> levelsMap = new TreeMap<>();
-		SortedMap<Integer, Double> thresholdMap = new TreeMap<>();
-		
-		for(Parameter p : parameters) {
-			if(p.getName().matches("level[0-9]+")) {
-				int num = Integer.parseInt(p.getName().substring(5));
-				levelsMap.put(num, p.getValue());
-			} else if(p.getName().matches("threshold[0-9]+")) {
-				int num = Integer.parseInt(p.getName().substring(9));
-				thresholdMap.put(num, toDouble(p.getValue()));
-			}
-		}
-		
-		String[] levels = levelsMap.values().toArray(new String[0]);
+		init();
+
 		double dValue = toDouble(value);
 		
 		if(levelsMap.size() == thresholdMap.size() + 1) {
 			int i = 0;
 			for(Double threshold : thresholdMap.values()) {
 				if(dValue <= threshold) {
-					return levels[i];
+					return levelsMap.get(i);
 				}
 				++i;
 			}
-			return levels[i];
+			return levelsMap.get(i);
 		} else {
 			double distance = limit.getMax() - limit.getMin();
-			double step = distance / levels.length;
+			double step = distance / levelsMap.size();
 
-			for(int i = 0; i < levels.length; i++) {
-				double levelLimit = (i + 1) * step + limit.getMin();
+			for (Map.Entry<Integer, String> entry : levelsMap.entrySet()) {
+				double levelLimit = (entry.getKey() + 1) * step + limit.getMin();
 				if(dValue <= levelLimit) {
-					return levels[i];
+					return levelsMap.get(entry.getKey());
 				}
 			}
 		}
@@ -52,4 +44,21 @@ public class QuantizationConversion extends Conversion {
 		return null;
 	}
 	
+	private void init() {
+		if (!initialized) {
+			levelsMap.clear();
+			thresholdMap.clear();
+			for(Parameter p : parameters) {
+				if(p.getName().matches("level[0-9]+")) {
+					int num = Integer.parseInt(p.getName().substring(5));
+					levelsMap.put(num, p.getValue());
+				} else if(p.getName().matches("threshold[0-9]+")) {
+					int num = Integer.parseInt(p.getName().substring(9));
+					thresholdMap.put(num, toDouble(p.getValue()));
+				}
+			}
+			initialized = true;
+		}
+	}
+
 }

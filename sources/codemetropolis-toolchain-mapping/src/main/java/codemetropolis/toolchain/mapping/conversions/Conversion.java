@@ -13,21 +13,25 @@ import codemetropolis.toolchain.mapping.model.Parameter;
 public abstract class Conversion {
 	
 	protected List<Parameter> parameters = new ArrayList<Parameter>();
+	protected boolean initialized = false;
 	
 	public abstract Object apply(Object value, Limit limit);
 	
 	public void clearParameters() {
 		parameters.clear();
+		initialized = false;
 	}
 	
 	public void addParameter(Parameter p) {
 		parameters.add(p);
+		initialized = false;
 	}
 	
 	public void addParameters(Parameter... parameters) {
 		for(Parameter p : parameters) {
 			this.parameters.add(p);
 		}
+		initialized = false;
 	}
 	
 	@SuppressWarnings("unchecked")
