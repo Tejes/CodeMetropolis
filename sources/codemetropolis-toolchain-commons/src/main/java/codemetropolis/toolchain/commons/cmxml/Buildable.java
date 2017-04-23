@@ -19,7 +19,7 @@ public class Buildable implements Comparable<Buildable> {
 		CONTAINER;
 	}
 	
-	private String id;
+	private long id;
 	private String name;
 	private Type type;
 	private Point position;
@@ -29,11 +29,11 @@ public class Buildable implements Comparable<Buildable> {
 	private Buildable parent;
 	private String cdfNames;
 	
-	public Buildable(String id, String name, Type type) {
+	public Buildable(long id, String name, Type type) {
 		this(id, name, type, new Point(), new Point());
 	}
 	
-	public Buildable(String id, String name, Type type, Point position, Point size) {
+	public Buildable(long id, String name, Type type, Point position, Point size) {
 		this.id = id;
 		this.name = name;
 		this.type = type;
@@ -326,7 +326,7 @@ public class Buildable implements Comparable<Buildable> {
 		return parent == null;
 	}
 
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -347,7 +347,7 @@ public class Buildable implements Comparable<Buildable> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + Long.hashCode(id);
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
@@ -362,11 +362,9 @@ public class Buildable implements Comparable<Buildable> {
 		if (getClass() != obj.getClass())
 			return false;
 		Buildable other = (Buildable) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
+		if (id != other.id) {
 			return false;
+		}
 		if (name == null) {
 			if (other.name != null)
 				return false;
@@ -387,10 +385,9 @@ public class Buildable implements Comparable<Buildable> {
 	}
 	
 	String toString(int indent, boolean escape) {
-		String id = this.id;
+		long id = this.id;
 		String name = this.name;
 		if(escape) {
-			id = StringEscapeUtils.escapeXml10(id);
 			name = StringEscapeUtils.escapeXml10(name);
 		}
 		
@@ -423,7 +420,7 @@ public class Buildable implements Comparable<Buildable> {
 	
 	public Element toXmlElement(Document doc, boolean recursive) {
 		Element buildable = doc.createElement("buildable");
-		buildable.setAttribute("id", id);
+		buildable.setAttribute("id", Long.toString(id));
 		buildable.setAttribute("name", name);
 		buildable.setAttribute("type", type.toString().toLowerCase());
 		buildable.setIdAttribute("id", true);

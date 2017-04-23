@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -81,12 +82,12 @@ public class BuildableTree {
 		return buildables;
 	}
 	
-	public Buildable getBuildable(String id) {
+	public Buildable getBuildable(long id) {
 		return getBuildableFromDescendants(root, id);
 	}
 	
-	private Buildable getBuildableFromDescendants(Buildable b, String id) {
-		if(b.getId().equals(id)) return b;
+	private Buildable getBuildableFromDescendants(Buildable b, long id) {
+		if(b.getId() == id) return b;
 		for(Buildable c : b.getChildren())
 			if(getBuildableFromDescendants(c, id) != null) return getBuildableFromDescendants(c, id);
 		return null;
@@ -107,7 +108,7 @@ public class BuildableTree {
 	public void loadFromFile(String path) throws CmxmlReaderException {
 		try {
 			root = null;
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();;
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			File xmlFile = new File(path);
 			Document doc = dBuilder.parse(xmlFile);
@@ -157,7 +158,7 @@ public class BuildableTree {
 					}
 					
 					Buildable b = new Buildable(
-							eElement.getAttribute("id"),
+							getBuildableId(eElement),
 							eElement.getAttribute("name"),
 							type,
 							position,
@@ -176,7 +177,7 @@ public class BuildableTree {
 					if(!nNode.getParentNode().getNodeName().equals("buildables")) {
 						// Adds current buildable to parent's "children" list 
 						Element parentElement = (Element)nNode.getParentNode().getParentNode();
-						getBuildable(parentElement.getAttribute("id")).addChild(b);
+						getBuildable(getBuildableId(parentElement)).addChild(b);
 					} else {
 						root = b;
 					}
@@ -217,8 +218,8 @@ public class BuildableTree {
 					Buildable b = it2.next();
 					Buildable parent = b.getParent();
 					if(parent != null) {
-						Element parentElement = doc.getElementById(parent.getId());
-						Element buildableElement = doc.getElementById(b.getId());
+						Element parentElement = doc.getElementById(Long.toString(parent.getId()));
+						Element buildableElement = doc.getElementById(Long.toString(b.getId()));
 						parentElement.getElementsByTagName("children").item(0).appendChild(buildableElement);
 					}
 				}
@@ -250,4 +251,15 @@ public class BuildableTree {
 		return str;
 	}
 	
+	private static long getBuildableId(Element element) {
+		long id;
+		try {
+			id = Long.parseLong(element.getAttribute("id"));
+		} catch (NumberFormatException e) {
+			UUID uuid = UUID.fromString(element.getAttribute("id"));
+			id = uuid.getLeastSignificantBits() ^ uuid.getMostSignificantBits();
+		}
+		return id;
+	}
+
 }

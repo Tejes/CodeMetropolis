@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Stack;
-import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,6 +39,7 @@ public class MappingController {
 	private boolean skipInvalidStructures;
 	private Stack<Buildable> buildableStack = new Stack<>();
 	private Mapping mapping;
+	private Random random = new Random();
 	
 	public MappingController(Mapping mapping) {
 		this(mapping, 1.0, false);
@@ -64,7 +65,7 @@ public class MappingController {
 			
 			doc.getDocumentElement().normalize();
 			Element rootElement = (Element) doc.getChildNodes().item(0);
-			Buildable container = new Buildable(UUID.randomUUID().toString(), "", Type.CONTAINER);
+			Buildable container = new Buildable(random.nextLong(), "", Type.CONTAINER);
 				
 			Buildable actualBuildable = createBuildable(rootElement);
 			if(actualBuildable == null){
@@ -206,7 +207,7 @@ public class MappingController {
 	}
 	
 	private Buildable createBuildable(Element element) {
-		String id = UUID.randomUUID().toString();
+		long id = random.nextLong();
 		String name = element.getAttribute("name");
 		String typeStr = mapping.getTargetTypeOf(element.getAttribute("type"));
 		
